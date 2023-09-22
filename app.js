@@ -63,25 +63,8 @@ app.post('/launch', async (req, res) => {
             }
         }        
         
-    
-        const hoverText1 = 'TRANSACTIONS';
-        const hoverText2 = 'Inspection & Billing';
-        const clickText = 'Purchase Order Form';
-
-        
-        const hoverDiv1 = await Main_Page.$x(`//div[contains(text(), '${hoverText1}')]`);
-
-        await hoverDiv1[0].hover();
-
-        const hoverDiv2 = await Main_Page.$x(`//div[contains(text(), '${hoverText2}')]`);
-
-        await hoverDiv2[0].hover();
-
-        const clickDiv = await Main_Page.$x(`//div[contains(text(), '${clickText}')]`);
-            
-        
-        await clickDiv[0].click();
-
+        await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Purchase Order Form');
+       
         await page.waitForTimeout(2000);
 
         let PO_Page = null
@@ -215,7 +198,7 @@ app.post('/launch', async (req, res) => {
         
         
         await PO_Details.click('#btnSave');
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(4000);
 
         //Accessing last Part and deleting it.. till it goes real
 
@@ -231,8 +214,17 @@ app.post('/launch', async (req, res) => {
                 break;                
             }                    
         } 
+        await page.waitForTimeout(2000);
         await PO_Part_Page.click(`#btnDelete`);
         //Accessing last Part and deleting it.. till it goes real
+
+        await page.waitForTimeout(5000);
+
+        await PO_Part_Page.click(`#WebUserControl11_HyperLink1`) // Change PO_Part_page to PO_details when deleting part is commented
+
+        await page.waitForTimeout(3000);
+
+        await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
 
         await PO_Details.screenshot({ path: 'screenshot.png' });
 
@@ -244,6 +236,17 @@ app.post('/launch', async (req, res) => {
         res.status(500).send(`Error launching ${websiteURL}`);
     }
 });
+
+async function hoverAndClick(page, hoverText1, hoverText2, clickText) {
+    const hoverDiv1 = await page.$x(`//div[contains(text(), '${hoverText1}')]`);
+    await hoverDiv1[0].hover();
+
+    const hoverDiv2 = await page.$x(`//div[contains(text(), '${hoverText2}')]`);
+    await hoverDiv2[0].hover();
+
+    const clickDiv = await page.$x(`//div[contains(text(), '${clickText}')]`);
+    await clickDiv[0].click();
+}
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
