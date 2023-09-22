@@ -12,27 +12,13 @@ app.get('/', (req, res) => {
 
 app.post('/launch', async (req, res) => {
     const websiteURL = 'https://www.ritesinsp.com/rbs/Login_Form.aspx'
-    const CaseNumber = req.body.CaseNumber;
-    const PODate= req.body.PODate;
-    const PONumber = req.body.PONumber;
-    const section = req.body.section;
-    const grade = req.body.grade;
-    const Raillen = req.body.Raillen;
-    const railclass = req.body.railclass;
-    const rake = req.body.rake;
-    const PO_Qty = req.body.PO_Qty;
-    const Rate = req.body.Rate;
-
-    const Consignee_Code = req.body.Consignee_Code;
-    const BPO_Code = req.body.BPO_Code;
-
-    // console.log(section,grade,Raillen,railclass)
-
-
+    const {
+        CaseNumber, PODate, PONumber, calldate, section,
+        grade, Raillen, railclass, rake, PO_Qty,
+        Rate, Consignee_Code, BPO_Code,
+    } = req.body;
     
     try {
-
-        // console.log(req.body);
 
         const browser = await puppeteer.launch({
             headless: false,
@@ -148,9 +134,7 @@ app.post('/launch', async (req, res) => {
             }
         }
 
-
-
-        await PO_Page_Case.waitForTimeout(2000);
+        await PO_Page_Case.waitForTimeout(7000);
 
         
         // console.log(PO_Details_url)
@@ -162,9 +146,8 @@ app.post('/launch', async (req, res) => {
                 break;                
             }                    
         }
-        // console.log('ess',PO_Details.url())
 
-        await page.waitForTimeout(2000); // time for pressing okay on page
+        await page.waitForTimeout(3000); // time for pressing okay on page
 
     
         const [description,list_desc_num,PL_No] = IC_Description(section, grade, Raillen, railclass);
@@ -172,7 +155,7 @@ app.post('/launch', async (req, res) => {
 
         await PO_Details.select('select#lstItemDesc', list_desc_num);
         
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(10000);
         await PO_Details.type(`#txtItemDescpt`, description);
         await PO_Details.type(`#txtPLNO`,PL_No);
         await PO_Details.select('select#ddlConsigneeCD', Consignee_Code);
@@ -198,14 +181,14 @@ app.post('/launch', async (req, res) => {
         
         
         await PO_Details.click('#btnSave');
-        await page.waitForTimeout(4000);
+        await page.waitForTimeout(10000);
 
         //Accessing last Part and deleting it.. till it goes real
 
         const last_part = `#DgPO_ctl${ic_made+1}_Hyperlink2`;        
         await PO_Details.click(last_part);    
         let PO_Part_Page = null;
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(5000);
 
         for (const page of allPages) {
             const pageUrl = page.url();            
@@ -214,19 +197,34 @@ app.post('/launch', async (req, res) => {
                 break;                
             }                    
         } 
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(5000);
         await PO_Part_Page.click(`#btnDelete`);
         //Accessing last Part and deleting it.. till it goes real
 
-        await page.waitForTimeout(5000);
+        await page.waitForTimeout(7000);
 
         await PO_Part_Page.click(`#WebUserControl11_HyperLink1`) // Change PO_Part_page to PO_details when deleting part is commented
 
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(7000);
 
         await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
 
-        await PO_Details.screenshot({ path: 'screenshot.png' });
+        const call_page_url = 'https://www.ritesinsp.com/rbs/Call_Register_Edit.aspx'
+        let call_page = null;
+        await page.waitForTimeout(5000);
+
+        for (const page of allPages) {
+            const pageUrl = page.url();            
+            if(pageUrl === call_page_url){
+                call_page = page  
+                break;                
+            }                    
+        } 
+
+        const format_call_date = calldate.split('-').reverse().join('-');
+        await call_page.type(`#txtCaseNo`,CaseNumber)
+        await call_page.type(`#txtDtOfReciept`,calldate)
+        await call_page.screenshot({ path: 'screenshot.png' });
 
 
         await page.waitForTimeout(5000);
@@ -237,13 +235,17 @@ app.post('/launch', async (req, res) => {
     }
 });
 
+
+//allied functions
+
 async function hoverAndClick(page, hoverText1, hoverText2, clickText) {
+    await page.waitForTimeout(1000)
     const hoverDiv1 = await page.$x(`//div[contains(text(), '${hoverText1}')]`);
     await hoverDiv1[0].hover();
-
+    await page.waitForTimeout(1000)
     const hoverDiv2 = await page.$x(`//div[contains(text(), '${hoverText2}')]`);
     await hoverDiv2[0].hover();
-
+    await page.waitForTimeout(1000)
     const clickDiv = await page.$x(`//div[contains(text(), '${clickText}')]`);
     await clickDiv[0].click();
 }
