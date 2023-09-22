@@ -20,6 +20,8 @@ app.post('/launch', async (req, res) => {
     const Raillen = req.body.Raillen;
     const railclass = req.body.railclass;
     const rake = req.body.rake;
+    const PO_Qty = req.body.PO_Qty;
+    const Rate = req.body.Rate;
 
     const Consignee_Code = req.body.Consignee_Code;
     const BPO_Code = req.body.BPO_Code;
@@ -167,55 +169,71 @@ app.post('/launch', async (req, res) => {
 
         await PO_Page_Case.waitForTimeout(2000);
 
-        const PO_Details_url = `https://www.ritesinsp.com/rbs/PurchesOrderDetails.aspx?CASE_NO=${CaseNumber}&type=R&PODT=${PO_Date}&PO_OR_LOA=P`;
-
+        
         // console.log(PO_Details_url)
         for (const page of allPages) {
             const pageUrl = page.url();
             
-            if(pageUrl === PO_Details_url){
+            if(pageUrl.includes(CaseNumber)){
                 PO_Details = page  
                 break;                
             }                    
         }
         // console.log('ess',PO_Details.url())
 
-        await page.waitForTimeout(5000); // time for pressing okay on page
+        await page.waitForTimeout(2000); // time for pressing okay on page
 
     
         const [description,list_desc_num,PL_No] = IC_Description(section, grade, Raillen, railclass);
-        console.log(description,list_desc_num,PL_No);
+        
 
         await PO_Details.select('select#lstItemDesc', list_desc_num);
         
-        await page.waitForTimeout(5000);
-        // await PO_Details.keyboard.press('Enter')
+        await page.waitForTimeout(2000);
         await PO_Details.type(`#txtItemDescpt`, description);
         await PO_Details.type(`#txtPLNO`,PL_No);
-
-
-        await PO_Details.waitForSelector('#ddlConsigneeCD');
-        const list_consignee = await PO_Details.$('#ddlConsigneeCD');
-        const consignee_options = await list_consignee.$$eval('option', options => options.map(option => option.textContent));
-        console.log(consignee_options);
-        let consignee_index = null;
-
-        for (let i = 0; i < consignee_options.length; i++) {
-            if (consignee_options[i].includes(Consignee_Code)) {
-                consignee_index = i;
-                break;
-            }
+        await PO_Details.select('select#ddlConsigneeCD', Consignee_Code);
+        await PO_Details.type(`#txtQty`,PO_Qty);
+        await PO_Details.keyboard.press('Tab');
+        await PO_Details.type(`#txtRate`,Rate);
+        for (let i = 0; i < 6; i++) {
+            await PO_Details.keyboard.press('Tab');
         }
+        await PO_Details.type (`#txtSaleTaxPre`,'18');
+        for (let i = 0; i < 6; i++) {
+            await PO_Details.keyboard.press('Tab');
+        }
+        await PO_Details.type (`#txtExtDelvDate`,'31-03-2024'); 
 
+        const outerTable = await PO_Details.$('table#Table1');
+        const innerTable = await outerTable.$('table#DgPO');
 
-        console.log(consignee_options[consignee_index])
-        await list_consignee.click();
-        await PO_Details.select('select#ddlConsigneeCD', consignee_options[consignee_index+1]);
-
+       
+        const rows = await innerTable.$$('tr');
+        const ic_made = (rows.length);
         
-
-
         
+        
+        await PO_Details.click('#btnSave');
+        await page.waitForTimeout(3000);
+
+        //Accessing last Part and deleting it.. till it goes real
+
+        const last_part = `#DgPO_ctl${ic_made+1}_Hyperlink2`;        
+        await PO_Details.click(last_part);    
+        let PO_Part_Page = null;
+        await page.waitForTimeout(3000);
+
+        for (const page of allPages) {
+            const pageUrl = page.url();            
+            if(pageUrl.includes(CaseNumber)){
+                PO_Part_Page = page  
+                break;                
+            }                    
+        } 
+        await PO_Part_Page.click(`#btnDelete`);
+        //Accessing last Part and deleting it.. till it goes real
+
         await PO_Details.screenshot({ path: 'screenshot.png' });
 
 
@@ -239,7 +257,6 @@ function IC_Description(section, grade, Raillen, railclass) {
     let description = null; // Use 'let' instead of 'const' to allow reassignment
     let list_desc_num = null; 
     let PL_No = null; 
-    console.log('inside function')
     
     if(section==="60E1"){
         PL_No='1'
@@ -301,7 +318,6 @@ function IC_Description(section, grade, Raillen, railclass) {
         description = "irs52 880 13m cl B";
         list_desc_num = '1'
     }
-    console.log('value got')
     return [description,list_desc_num,PL_No]; // Return the description at the end
 }
 
