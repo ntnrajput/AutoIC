@@ -223,8 +223,27 @@ app.post('/launch', async (req, res) => {
 
         const format_call_date = calldate.split('-').reverse().join('-');
         await call_page.type(`#txtCaseNo`,CaseNumber)
-        await call_page.type(`#txtDtOfReciept`,calldate)
-        await call_page.screenshot({ path: 'screenshot.png' });
+        await call_page.type(`#txtDtOfReciept`,format_call_date)
+        await call_page.click(`#btnAdd`);
+
+        let new_call_page = null;
+        await page.waitForTimeout(5000);
+
+        for (const page of allPages) {
+            const pageUrl = page.url();            
+            if(pageUrl.includes(CaseNumber)){
+                new_call_page = page  
+                break;                
+            }                    
+        } 
+        
+        
+        await new_call_page.select('select#lstIE', '557');
+        await new_call_page.select('select#ddlDept', 'C');
+        await new_call_page.click (`#btnSave`);
+
+        
+        await new_call_page.screenshot({ path: 'screenshot.png' });
 
 
         await page.waitForTimeout(5000);
