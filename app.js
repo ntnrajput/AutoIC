@@ -17,16 +17,20 @@ app.post('/launch', async (req, res) => {
         grade, Raillen, railclass, rake, PO_Qty,
         Rate, Consignee_Code, BPO_Code, f_s, irfc, 
     } = req.body;
+
+    console.log(req.body)
     
     try {
 
         const browser = await puppeteer.launch({
             headless: false,
             defaultViewport: false,
+            executablePath:"c:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
         });
         const [page] = await browser.pages();
         await page.goto(websiteURL);
-        await page.waitForTimeout(1000);
+        // await page.waitForTimeout(1000);
+        await page.waitForSelector('#txtUname', { timeout: 10000 });
 
         await page.type('#txtUname', 'CRTECH');
         await page.type('#txtPwd', 'BSPINSCR');
@@ -120,7 +124,7 @@ app.post('/launch', async (req, res) => {
             }                    
         }
 
-        await page.waitForTimeout(2000); // time for pressing okay on page
+        await page.waitForTimeout(5000); // time for pressing okay on page
 
     
         const [description,list_desc_num,PL_No] = IC_Description(section, grade, Raillen, railclass);
@@ -128,7 +132,7 @@ app.post('/launch', async (req, res) => {
 
         await PO_Details.select('select#lstItemDesc', list_desc_num);
         
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(5000);
         await PO_Details.type(`#txtItemDescpt`, description);
         await PO_Details.type(`#txtPLNO`,PL_No);
         await PO_Details.select('select#ddlConsigneeCD', Consignee_Code);
@@ -154,7 +158,7 @@ app.post('/launch', async (req, res) => {
         
         
         await PO_Details.click('#btnSave');
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(5000);
 
         //Accessing last Part and deleting it.. till it goes real
 
@@ -174,7 +178,7 @@ app.post('/launch', async (req, res) => {
         await PO_Part_Page.click(`#btnDelete`);
         //Accessing last Part and deleting it.. till it goes real
 
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(4000);
 
         await PO_Part_Page.click(`#WebUserControl11_HyperLink1`) // Change PO_Part_page to PO_details when deleting part is commented
 
@@ -213,7 +217,7 @@ app.post('/launch', async (req, res) => {
         
         await new_call_page.select('select#lstIE', '557');
         await new_call_page.select('select#ddlDept', 'C');
-        if (f_s === 's') {
+        if (f_s === 'f') {
             await new_call_page.click('#rdbFinal');
           } else if (f_s === 's') {
             await new_call_page.click('#rdbStage');
