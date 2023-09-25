@@ -15,7 +15,7 @@ app.post('/launch', async (req, res) => {
     const {
         CaseNumber, PODate, PONumber, calldate, section,
         grade, Raillen, railclass, rake, PO_Qty,
-        Rate, Consignee_Code, BPO_Code,
+        Rate, Consignee_Code, BPO_Code, f_s, irfc, 
     } = req.body;
     
     try {
@@ -24,7 +24,7 @@ app.post('/launch', async (req, res) => {
             headless: false,
             defaultViewport: false,
         });
-        const page = await browser.newPage();
+        const [page] = await browser.pages();
         await page.goto(websiteURL);
         await page.waitForTimeout(1000);
 
@@ -32,27 +32,21 @@ app.post('/launch', async (req, res) => {
         await page.type('#txtPwd', 'BSPINSCR');
         await page.keyboard.press('Enter');
 
-        await page.waitForTimeout(2000);
-        const allPages = await browser.pages();
-        
-        
+        // await page.waitForTimeout(2000);
+        await page.waitForNavigation({ waitUntil: 'networkidle2' });
+
+        const allPages = await browser.pages();    
         let Main_Page = null;
-        for (const page of allPages) {
-            
-            
+        for (const page of allPages) {  
             const pageUrl = page.url();
-            
-            
             if(pageUrl === "https://www.ritesinsp.com/rbs/MainForm.aspx?Role=1"){
-                Main_Page = page
-                
+                Main_Page = page                
             }
         }        
         
         await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Purchase Order Form');
        
-        await page.waitForTimeout(2000);
-
+        await page.waitForTimeout(3000);
         let PO_Page = null
         for (const page of allPages) {
             const pageUrl = page.url();
@@ -60,38 +54,28 @@ app.post('/launch', async (req, res) => {
             if(pageUrl === "https://www.ritesinsp.com/rbs/PurchesOrder1_Form.aspx"){
                 PO_Page = page
             }
-            // console.log(`Page URL: ${pageUrl}`);
-            
-            // You can perform actions on each page here
         }
 
-        
-        
         await PO_Page.type('#txtCsNo',CaseNumber);
-
         await PO_Page.click('#btnSearchPO');
-
         
         await PO_Page.waitForSelector('a'); // Wait for at least one anchor element
         
         // Use a selector to locate the anchor tag link you want to click
-        const specificHref = `PurchesOrder_Form.aspx?CASE_NO=${CaseNumber}`;
-        const linkSelector = `a[href="${specificHref}"]`;
+        
+        const linkSelector = `a[href*="PurchesOrder_Form"][href*="${CaseNumber}"]`;
+
         // const linkSelector = 'a[href="PurchesOrder_Form.aspx?CASE_NO=${variableValue}"]'; // Replace with the href of the specific link you want to click
         
         await PO_Page.waitForSelector(linkSelector);
         
         await PO_Page.click(linkSelector);
-        // console.log(CaseNumber)
-
-
-        
+        // console.log(CaseNumber)        
         
         await page.waitForTimeout(2000);
 
         let PO_Page_Case = null;
         const PO_Page_Case_url = `https://www.ritesinsp.com/rbs/PurchesOrder_Form.aspx?CASE_NO=${CaseNumber}`;
-
        
         for (const page of allPages) {
             const pageUrl = page.url();
@@ -99,11 +83,7 @@ app.post('/launch', async (req, res) => {
             if(pageUrl === PO_Page_Case_url){
                 PO_Page_Case = page
             }
-            // console.log(`Page URL: ${pageUrl}`);
-            
-            // You can perform actions on each page here
         }
-
 
         const PO_Date_Box = await PO_Page_Case.$('#txtPOdate');
         const PO_Date = await PO_Page_Case.evaluate(input => input.value, PO_Date_Box);
@@ -114,7 +94,6 @@ app.post('/launch', async (req, res) => {
             const rows = table.querySelectorAll('tr');
             return rows.length;
         }, table);
-        // console.log(rowCount)
 
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             const columns = await PO_Page_Case.evaluate((table, rowIndex) => {
@@ -122,20 +101,14 @@ app.post('/launch', async (req, res) => {
               const columns = Array.from(row.querySelectorAll('td')).map(column => column.textContent.trim());
               return columns;
             }, table, rowIndex);
-        
-            // Process the columns as needed
-            // console.log(`Row ${rowIndex + 1}:`, columns[1]);
             const regex = new RegExp(Consignee_Code);
-            if (regex.test(columns[1])) {
-                
+            if (regex.test(columns[1])) {                
                 await PO_Page_Case.click('#btnPODetails'); 
-
                 break;
             }
         }
 
-        await PO_Page_Case.waitForTimeout(7000);
-
+        await PO_Page_Case.waitForTimeout(2000);
         
         // console.log(PO_Details_url)
         for (const page of allPages) {
@@ -147,7 +120,7 @@ app.post('/launch', async (req, res) => {
             }                    
         }
 
-        await page.waitForTimeout(3000); // time for pressing okay on page
+        await page.waitForTimeout(2000); // time for pressing okay on page
 
     
         const [description,list_desc_num,PL_No] = IC_Description(section, grade, Raillen, railclass);
@@ -155,7 +128,7 @@ app.post('/launch', async (req, res) => {
 
         await PO_Details.select('select#lstItemDesc', list_desc_num);
         
-        await page.waitForTimeout(10000);
+        await page.waitForTimeout(2000);
         await PO_Details.type(`#txtItemDescpt`, description);
         await PO_Details.type(`#txtPLNO`,PL_No);
         await PO_Details.select('select#ddlConsigneeCD', Consignee_Code);
@@ -181,14 +154,14 @@ app.post('/launch', async (req, res) => {
         
         
         await PO_Details.click('#btnSave');
-        await page.waitForTimeout(10000);
+        await page.waitForTimeout(2000);
 
         //Accessing last Part and deleting it.. till it goes real
 
         const last_part = `#DgPO_ctl${ic_made+1}_Hyperlink2`;        
         await PO_Details.click(last_part);    
         let PO_Part_Page = null;
-        await page.waitForTimeout(5000);
+        await page.waitForTimeout(2000);
 
         for (const page of allPages) {
             const pageUrl = page.url();            
@@ -197,21 +170,21 @@ app.post('/launch', async (req, res) => {
                 break;                
             }                    
         } 
-        await page.waitForTimeout(5000);
+        await page.waitForTimeout(2000);
         await PO_Part_Page.click(`#btnDelete`);
         //Accessing last Part and deleting it.. till it goes real
 
-        await page.waitForTimeout(7000);
+        await page.waitForTimeout(2000);
 
         await PO_Part_Page.click(`#WebUserControl11_HyperLink1`) // Change PO_Part_page to PO_details when deleting part is commented
 
-        await page.waitForTimeout(7000);
+        await page.waitForTimeout(2000);
 
         await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
 
         const call_page_url = 'https://www.ritesinsp.com/rbs/Call_Register_Edit.aspx'
         let call_page = null;
-        await page.waitForTimeout(5000);
+        await page.waitForTimeout(2000);
 
         for (const page of allPages) {
             const pageUrl = page.url();            
@@ -227,7 +200,7 @@ app.post('/launch', async (req, res) => {
         await call_page.click(`#btnAdd`);
 
         let new_call_page = null;
-        await page.waitForTimeout(5000);
+        await page.waitForTimeout(2000);
 
         for (const page of allPages) {
             const pageUrl = page.url();            
@@ -240,13 +213,23 @@ app.post('/launch', async (req, res) => {
         
         await new_call_page.select('select#lstIE', '557');
         await new_call_page.select('select#ddlDept', 'C');
-        await new_call_page.click (`#btnSave`);
+        if (f_s === 's') {
+            await new_call_page.click('#rdbFinal');
+          } else if (f_s === 's') {
+            await new_call_page.click('#rdbStage');
+        }
+        if(irfc === 'true'){
+            await new_call_page.select('select#ddlIRFC', 'Y');
+        }else{
+            await new_call_page.select('select#ddlIRFC', 'N');
+        }
+        // await new_call_page.click (`#btnSave`);
 
         
         await new_call_page.screenshot({ path: 'screenshot.png' });
 
 
-        await page.waitForTimeout(5000);
+        await page.waitForTimeout(2000);
         await browser.close();
         res.send(`Launched ${CaseNumber} `);
     } catch (error) {
@@ -258,13 +241,13 @@ app.post('/launch', async (req, res) => {
 //allied functions
 
 async function hoverAndClick(page, hoverText1, hoverText2, clickText) {
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(500)
     const hoverDiv1 = await page.$x(`//div[contains(text(), '${hoverText1}')]`);
     await hoverDiv1[0].hover();
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(500)
     const hoverDiv2 = await page.$x(`//div[contains(text(), '${hoverText2}')]`);
     await hoverDiv2[0].hover();
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(500)
     const clickDiv = await page.$x(`//div[contains(text(), '${clickText}')]`);
     await clickDiv[0].click();
 }
@@ -272,8 +255,6 @@ async function hoverAndClick(page, hoverText1, hoverText2, clickText) {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
-
-
 
 
 
