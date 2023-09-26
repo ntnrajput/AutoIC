@@ -32,21 +32,23 @@ app.post('/launch', async (req, res) => {
         // await page.waitForTimeout(1000);
         await page.waitForSelector('#txtUname', { timeout: 10000 });
 
-        // await page.type('#txtUname', 'CRTECH');
-        // await page.type('#txtPwd', 'BSPINSCR');
-        // await page.keyboard.press('Enter');
+        await page.type('#txtUname', 'CRTECH');
+        await page.type('#txtPwd', 'BSPINSCR');
+        await page.keyboard.press('Enter');
 
-        // // await page.waitForTimeout(2000);
-        // await page.waitForNavigation({ waitUntil: 'networkidle2' });
+        // await page.waitForTimeout(2000);
+        await page.waitForNavigation({ waitUntil: 'networkidle2' });
 
-        // const allPages = await browser.pages();    
-        // let Main_Page = null;
-        // for (const page of allPages) {  
-        //     const pageUrl = page.url();
-        //     if(pageUrl === "https://www.ritesinsp.com/rbs/MainForm.aspx?Role=1"){
-        //         Main_Page = page                
-        //     }
-        // }        
+        const allPages = await browser.pages();    
+        let Main_Page = null;
+        for (const page of allPages) {  
+            const pageUrl = page.url();
+            if(pageUrl === "https://www.ritesinsp.com/rbs/MainForm.aspx?Role=1"){
+                Main_Page = page                
+            }
+        }        
+
+        // // -----------------------------------------------------------------------------------------
         
         // await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Purchase Order Form');
        
@@ -160,50 +162,58 @@ app.post('/launch', async (req, res) => {
         // await PO_Details.click('#btnSave');
         // await page.waitForTimeout(5000);
 
-        // //Accessing last Part and deleting it.. till it goes real
+        // // //Accessing last Part and deleting it.. till it goes real
 
-        // const last_part = `#DgPO_ctl${ic_made+1}_Hyperlink2`;        
-        // await PO_Details.click(last_part);    
-        // let PO_Part_Page = null;
+        // // const last_part = `a[id*="DgPO_ctl"][id*="${ic_made + 1}"][id*="Hyperlink2"]`;   
+        
+        // // await PO_Details.click(last_part);    
+        // // let PO_Part_Page = null;
+        // // await page.waitForTimeout(2000);
+
+        // // for (const page of allPages) {
+        // //     const pageUrl = page.url();            
+        // //     if(pageUrl.includes(CaseNumber)){
+        // //         PO_Part_Page = page  
+        // //         break;                
+        // //     }                    
+        // // } 
+        // // await page.waitForTimeout(2000);
+        // // await PO_Part_Page.click(`#btnDelete`);
+
+        // // //Accessing last Part and deleting it.. till it goes real
+
+        // // await page.waitForTimeout(4000);
+
+        // // await PO_Part_Page.click(`#WebUserControl11_HyperLink1`) // Change PO_Part_page to PO_details when deleting part is commented
+        // await PO_Details.click(`#WebUserControl11_HyperLink1`) 
+
         // await page.waitForTimeout(2000);
 
-        // for (const page of allPages) {
-        //     const pageUrl = page.url();            
-        //     if(pageUrl.includes(CaseNumber)){
-        //         PO_Part_Page = page  
-        //         break;                
-        //     }                    
-        // } 
-        // await page.waitForTimeout(2000);
-        // await PO_Part_Page.click(`#btnDelete`);
-        // //Accessing last Part and deleting it.. till it goes real
+        // // --------------------------------------------------------
 
-        // await page.waitForTimeout(4000);
+        await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
 
-        // await PO_Part_Page.click(`#WebUserControl11_HyperLink1`) // Change PO_Part_page to PO_details when deleting part is commented
+        const call_page_url = 'https://www.ritesinsp.com/rbs/Call_Register_Edit.aspx'
+        let call_page = null;
+        await page.waitForTimeout(2000);
 
-        // await page.waitForTimeout(2000);
-
-        // await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
-
-        // const call_page_url = 'https://www.ritesinsp.com/rbs/Call_Register_Edit.aspx'
-        // let call_page = null;
-        // await page.waitForTimeout(2000);
-
-        // for (const page of allPages) {
-        //     const pageUrl = page.url();            
-        //     if(pageUrl === call_page_url){
-        //         call_page = page  
-        //         break;                
-        //     }                    
-        // } 
+        for (const page of allPages) {
+            const pageUrl = page.url();            
+            if(pageUrl === call_page_url){
+                call_page = page  
+                break;                
+            }                    
+        } 
 
         const format_call_date = calldate.split('-').reverse().join('-');
-        // await call_page.type(`#txtCaseNo`,CaseNumber)
-        // await call_page.type(`#txtDtOfReciept`,format_call_date)
+        await call_page.type(`#txtCaseNo`,CaseNumber)
+        await call_page.type(`#txtDtOfReciept`,format_call_date)
+
+        // // -------------------------------------------------------------------
         // await call_page.click(`#btnAdd`);
 
         // let new_call_page = null;
+
         // await page.waitForTimeout(2000);
 
         // for (const page of allPages) {
@@ -223,18 +233,36 @@ app.post('/launch', async (req, res) => {
         //     await new_call_page.click('#rdbStage');
         // }
         // await page.waitForTimeout(500);
+
+        // const irfcSelect = await new_call_page.$('select#ddlIRFC');
+        // if (irfcSelect) {
         
-        // if(irfc === 'funded'){
-        //     await new_call_page.select('select#ddlIRFC', 'Y');
-        // }else{
-        //     await new_call_page.select('select#ddlIRFC', 'N');
+        //     if(irfc === 'funded'){
+        //         await new_call_page.select('select#ddlIRFC', 'Y');
+        //     }else{
+        //         await new_call_page.select('select#ddlIRFC', 'N');
+        //     }
         // }
         // await new_call_page.type('#txtMName','45338') ;  
         // await new_call_page.click('#btnFCList');
-        // // await new_call_page.click (`#btnSave`);
+        // await page.waitForTimeout(1000)
+        // await new_call_page.click (`#btnSave`); 
         // await page.waitForTimeout(3000)
+        // await new_call_page.click (`#btnCDetails`);
 
-        // await new_call_page.click(`#WebUserControl11_HyperLink2`)
+        // // -------------------------------------------------------------------------
+        
+
+        await call_page.click(`#btnSearch`);
+        await call_page.waitForSelector('#grdCNO_ctl02_Hyperlink2');
+        await call_page.click('#grdCNO_ctl02_Hyperlink2');
+        await call_page.waitForSelector('#btnMod');
+        await call_page.click(`#btnMod`);
+
+        
+
+
+        await new_call_page.click(`#WebUserControl11_HyperLink2`)
 
         await page.waitForTimeout(3000)
         // await page.screenshot({ path: 'screenshot.png' });
@@ -444,7 +472,7 @@ function IC_Description(section, grade, Raillen, railclass) {
         description = "irs52 880 26m cl B";
         list_desc_num = '3'
     }else if(section === "6IRS52" && grade === "880" && Raillen == "13m" && railclass =="A"){
-        description = " irs52 880 13m cl A";
+        description = " 52KG (13M) GR 880 RAILS TO IRS SPECIFICATION NO. IRS T-12-2009 CL B PRIME QUALITY RAILS 100% ULTRASONICALLY TESTED & FOUND SATISFACTORY";
         list_desc_num = '1'
     }else if(section === "IRS52" && grade === "880" && Raillen == "13m" && railclass =="B"){
         description = "irs52 880 13m cl B";
