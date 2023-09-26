@@ -87,7 +87,10 @@
             <div class="row">
                 <div class="form-group col-md-3">
                     <label for="irfc">IRFC Funded:</label> <!-- Fixed the label here -->
-                    <input type="checkbox" id="irfc" name="irfc" value="true">              
+                    <select class="form-control" id="irfc" name="irfc" required>
+                        <option value="not funded">Not Funded</option>
+                        <option value="funded">Funded</option>
+                    </select>             
                 </div>
                              
             </div>
