@@ -23,9 +23,9 @@ app.post('/launch', async (req, res) => {
     const {
         CaseNumber, PODate, PONumber, calldate, section,
         grade, Raillen, railclass, rake, PO_Qty,
-        Rate, Consignee_Code, BPO_Code, f_s, irfc, 
+        Rate, Consignee_Code, BPO_Code, f_s, irfc, Cumm_Pass_Qty, Off_Qty, 
     } = req.body;
-
+    const Rem_Qty = PO_Qty -Cumm_Pass_Qty-Off_Qty;
     console.log(req.body)
     
     try {
@@ -40,23 +40,25 @@ app.post('/launch', async (req, res) => {
         // await page.waitForTimeout(1000);
         await page.waitForSelector('#txtUname', { timeout: 10000 });
 
-        await page.type('#txtUname', 'CRTECH');
-        await page.type('#txtPwd', 'BSPINSCR');
-        await page.keyboard.press('Enter');
-
-        // await page.waitForTimeout(2000);
-        await page.waitForNavigation({ waitUntil: 'networkidle2' });
-
-        const allPages = await browser.pages();    
-        let Main_Page = null;
-        for (const page of allPages) {  
-            const pageUrl = page.url();
-            if(pageUrl === "https://www.ritesinsp.com/rbs/MainForm.aspx?Role=1"){
-                Main_Page = page                
-            }
-        }        
 
         // // -----------------------------------------------------------------------------------------
+
+        // await page.type('#txtUname', 'CRTECH');
+        // await page.type('#txtPwd', 'BSPINSCR');
+        // await page.keyboard.press('Enter');
+
+        // // await page.waitForTimeout(2000);
+        // await page.waitForNavigation({ waitUntil: 'networkidle2' });
+
+        // const allPages = await browser.pages();    
+        // let Main_Page = null;
+        // for (const page of allPages) {  
+        //     const pageUrl = page.url();
+        //     if(pageUrl === "https://www.ritesinsp.com/rbs/MainForm.aspx?Role=1"){
+        //         Main_Page = page                
+        //     }
+        // }        
+        
         
         // await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Purchase Order Form');
        
@@ -197,27 +199,27 @@ app.post('/launch', async (req, res) => {
 
         // await page.waitForTimeout(2000);
 
-        // // --------------------------------------------------------
+        
 
-        await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
+        // await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
 
-        const call_page_url = 'https://www.ritesinsp.com/rbs/Call_Register_Edit.aspx'
-        let call_page = null;
-        await page.waitForTimeout(2000);
+        // const call_page_url = 'https://www.ritesinsp.com/rbs/Call_Register_Edit.aspx'
+        // let call_page = null;
+        // await page.waitForTimeout(2000);
 
-        for (const page of allPages) {
-            const pageUrl = page.url();            
-            if(pageUrl === call_page_url){
-                call_page = page  
-                break;                
-            }                    
-        } 
+        // for (const page of allPages) {
+        //     const pageUrl = page.url();            
+        //     if(pageUrl === call_page_url){
+        //         call_page = page  
+        //         break;                
+        //     }                    
+        // } 
 
-        const format_call_date = calldate.split('-').reverse().join('-');
-        await call_page.type(`#txtCaseNo`,CaseNumber)
-        await call_page.type(`#txtDtOfReciept`,format_call_date)
+        // const format_call_date = calldate.split('-').reverse().join('-');
+        // await call_page.type(`#txtCaseNo`,CaseNumber)
+        // await call_page.type(`#txtDtOfReciept`,format_call_date)
 
-        // // -------------------------------------------------------------------
+        
         // await call_page.click(`#btnAdd`);
 
         // let new_call_page = null;
@@ -259,65 +261,81 @@ app.post('/launch', async (req, res) => {
         // await new_call_page.click (`#btnCDetails`);
 
         // // -------------------------------------------------------------------------
+        // // -------------------------------------------------------------------------
         
 
-        // -------------This code only testing Purpose-------------
+        // // // -------------This code only testing Purpose-------------
 
-        await call_page.click(`#btnSearch`);
-        await call_page.waitForSelector('#grdCNO_ctl02_Hyperlink2');
-        await call_page.click('#grdCNO_ctl02_Hyperlink2');
-        await call_page.waitForSelector('#btnMod');
-        await call_page.click(`#btnMod`);
-        const allPages11 = await browser.pages();
-        const call_mod = allPages11.find((page) => page.url() === "https://www.ritesinsp.com/rbs/Call_Register_Form.aspx?Action=M&Case_No=C19040066&DT_RECIEPT=26/09/2023&CALL_SNO=6");
-        await call_mod.waitForSelector('#btnCDetails')
-        await call_mod.click(`#btnCDetails`)
+        // // await call_page.click(`#btnSearch`);
+        // // await call_page.waitForSelector('#grdCNO_ctl02_Hyperlink2');
+        // // await call_page.click('#grdCNO_ctl02_Hyperlink2');
+        // // await call_page.waitForSelector('#btnMod');
+        // // await call_page.click(`#btnMod`);
+        // // await page.waitForTimeout(1000)
+        // // const allPages11 = await browser.pages();
+        // // const call_mod = allPages11.find((page) => page.url() === "https://www.ritesinsp.com/rbs/Call_Register_Form.aspx?Action=M&Case_No=C19040066&DT_RECIEPT=27/09/2023&CALL_SNO=2");
+        // // await page.waitForTimeout(1000)
+        // // await call_mod.waitForSelector('#btnCDetails')
+        // // await call_mod.click(`#btnCDetails`)
         
 
-        // --------------------This code onyl for Testing Purpose---------------
+        // // // --------------------This code onyl for Testing Purpose---------------
 
-        let call_details = null;
+        // let call_details = null;
 
-        await page.waitForTimeout(2000);
+        // await page.waitForTimeout(2000);
 
-        for (const page of allPages) {
-            const pageUrl = page.url();            
-            if(pageUrl.includes(CaseNumber)){
-                call_details = page  
-                break;                
-            }                    
-        } 
+        // for (const page of allPages) {
+        //     const pageUrl = page.url();            
+        //     if(pageUrl.includes(CaseNumber)){
+        //         call_details = page  
+        //         break;                
+        //     }                    
+        // } 
         
 
-        // Assuming the outer table has an id 'outerTableId' and the inner table has an id 'innerTableId'
-        const outerTableSelector = 'table#Table1';
-        const innerTableSelector = 'table#grdCDetails';
+        // // Assuming the outer table has an id 'outerTableId' and the inner table has an id 'innerTableId'
+        // const outerTableSelector = 'table#Table1';
+        // const innerTableSelector = 'table#grdCDetails';
 
-        // Wait for the outer table to appear
-        await call_details.waitForSelector(outerTableSelector);
+        // // Wait for the outer table to appear
+        // await call_details.waitForSelector(outerTableSelector);
 
-        // Get the inner table within the outer table
-        await call_details.waitForSelector(innerTableSelector, { visible: true, timeout: 0 });
+        // // Get the inner table within the outer table
+        // await call_details.waitForSelector(innerTableSelector, { visible: true, timeout: 0 });
 
-        // Get the last row in the inner table
-        const lastRowSelector = `${innerTableSelector} tr:last-child`;
+        // // Get the last row in the inner table
+        // const lastRowSelector = `${innerTableSelector} tr:last-child`;
 
-        // Get the link in the first column of the last row of the inner table
-        const linkSelector = `${lastRowSelector} td:first-child a`;
+        // // Get the link in the first column of the last row of the inner table
+        // const linkSelector = `${lastRowSelector} td:first-child a`;
 
-        // Click the link
-        await call_details.click(linkSelector);
+        // // Click the link
+        // await call_details.click(linkSelector);
 
-        page.waitForTimeout(4000)
+
+        // await call_details.waitForSelector(`#txtQuanInsp`);
+        // await call_details.type(`#txtCQty`,Cumm_Pass_Qty);
+        // await call_details.type(`#txtQPrePassed`,Cumm_Pass_Qty);
+        // await call_details.type(`#txtQuanInsp`,Off_Qty);
+        // await call_details.click(`#btnSave`);
+
+        // page.waitForTimeout(3000)
         
 
 
-        await new_call_page.click(`#WebUserControl11_HyperLink2`)
+        // await call_details.click(`#WebUserControl11_HyperLink2`)
 
-        await page.waitForTimeout(3000)
-        // await page.screenshot({ path: 'screenshot.png' });
+        // await page.waitForTimeout(3000)
+        // // await page.screenshot({ path: 'screenshot.png' });
 
-        await ie_login(CaseNumber,format_call_date)
+      
+        // ----------------------Testing Purpose----------------------------
+        const format_call_date = "27-09-2023";        
+      
+        await ie_login(CaseNumber,format_call_date,Consignee_Code)
+
+
 
 
 
@@ -334,7 +352,7 @@ app.post('/launch', async (req, res) => {
 
 
 
-async function ie_login(CaseNumber) {  
+async function ie_login(CaseNumber,format_call_date,Consignee_Code) {  
     
     const call_serial_num = '2'
     const call_serial_num_txt = "SNO="+ call_serial_num
@@ -359,12 +377,12 @@ async function ie_login(CaseNumber) {
     const pass_page1 = allPages.find((page) => page.url() === "https://www.ritesinsp.com/RBS/IE_Instructions.aspx?pIECD=908&pIENAME=CR/BHILAI");
     pass_page1.click('#btnNext')
 
-    await page.waitForTimeout(3000)
+    await page.waitForTimeout(2000)
 
     const allPages1 = await browser.pages();
     const ie_login_menu = allPages1.find((page) => page.url() === "https://www.ritesinsp.com/RBS/IE_Menu.aspx");
 
-    await page.waitForTimeout(2000)   
+    await page.waitForTimeout(1000)   
     
 
     await hoverAndClick(ie_login_menu, 'Calls Status', 'Calls Status', 'Sorted on Call Date');
@@ -398,7 +416,7 @@ async function ie_login(CaseNumber) {
         }
         
 
-        if (row_data[12].includes(CaseNumber) && row_data[14].includes("Accepted")) {
+        if (row_data[12].includes(CaseNumber) && row_data[14].includes("Pending")) {
             shouldBreak = true; // Set the flag to true to break out of both loops 
             row_matching = rowIndex+1; 
         }
@@ -411,6 +429,36 @@ async function ie_login(CaseNumber) {
     const linkHandle = await rowHandle.$(linkSelector);
     await linkHandle.click();
 
+    
+    await page.waitForTimeout(2000);
+    let call_status_edit;
+    for (const page of allPages) {
+        const pageUrl = page.url();            
+        if(pageUrl.includes(CaseNumber)){
+            call_status_edit = page  
+            break;                
+        }                    
+    } 
+
+    
+    await call_status_edit.select('select#lstCallStatus', 'A');
+    await call_status_edit.waitForSelector(`#HyperLink2AR`)
+    await call_status_edit.click(`#HyperLink2AR`);
+
+    await page.waitForTimeout(3000)
+    let call_status_edit_form;
+    for (const page of allPages) {
+        const pageUrl = page.url();            
+        if(pageUrl.includes(CaseNumber)){
+            call_status_edit_form= page  
+            break;                
+        }                    
+    } 
+    
+    await call_status_edit_form.waitForSelector(`#ddlCondignee`)
+    await call_status_edit_form.select('select#ddlCondignee', Consignee_Code)
+
+    
 
 
 

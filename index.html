@@ -104,14 +104,38 @@
             </div>
 
             <div class="form-group">
-                <label for="Consignee_Code">Consignee Code:</label>
-                <input type="number" class="form-control" id="Consignee_Code" name="Consignee_Code" required>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="Consignee_Code">Consignee Code:</label>
+                        <input type="number" class="form-control" id="Consignee_Code" name="Consignee_Code" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="BPO_Code">Bill Paying Authority Code:</label>
+                        <input type="number" class="form-control" id="BPO_Code" name="BPO_Code" required>
+                    </div>
+
+
+                </div>
             </div>
 
+            
             <div class="form-group">
-                <label for="BPO_Code">Bill Paying Authority Code:</label>
-                <input type="number" class="form-control" id="BPO_Code" name="BPO_Code" required>
+                
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="Cumm_Pass_Qty">Cumm. Qty Passed</label>
+                        <input type="number" class="form-control" id="Cumm_Pass_Qty" name="Cumm_Pass_Qty" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="Off_Qty">Offered Quantity:</label>
+                        <input type="number" class="form-control" id="Off_Qty" name="Off_Qty" required>
+                    </div>
+
+
+                </div>
             </div>
+
+            
 
             <button type="submit" class="btn btn-primary">Make IC</button>
         </form>
