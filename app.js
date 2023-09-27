@@ -1,6 +1,7 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
 const path = require('path');
+const numberToWords = require('number-to-words');
 
 const app = express();
 const port = 3000;
@@ -23,10 +24,14 @@ app.post('/launch', async (req, res) => {
     const {
         CaseNumber, PODate, PONumber, calldate, section,
         grade, Raillen, railclass, rake, PO_Qty,
-        Rate, Consignee_Code, BPO_Code, f_s, irfc, Cumm_Pass_Qty, Off_Qty, 
+        Rate, Consignee_Code, BPO_Code, f_s, irfc, Cumm_Pass_Qty, Off_Qty, Book, Set
     } = req.body;
     const Rem_Qty = PO_Qty -Cumm_Pass_Qty-Off_Qty;
-    console.log(req.body)
+    const format_call_date = calldate.split('-').reverse().join('-');
+    const txt_qty = convertToText(Off_Qty,4)
+    console.log(txt_qty)
+
+    // console.log(req.body)
     
     try {
 
@@ -215,7 +220,7 @@ app.post('/launch', async (req, res) => {
         //     }                    
         // } 
 
-        // const format_call_date = calldate.split('-').reverse().join('-');
+        
         // await call_page.type(`#txtCaseNo`,CaseNumber)
         // await call_page.type(`#txtDtOfReciept`,format_call_date)
 
@@ -327,13 +332,13 @@ app.post('/launch', async (req, res) => {
         // await call_details.click(`#WebUserControl11_HyperLink2`)
 
         // await page.waitForTimeout(3000)
-        // // await page.screenshot({ path: 'screenshot.png' });
+        
 
       
         // ----------------------Testing Purpose----------------------------
-        const format_call_date = "27-09-2023";        
+       
       
-        await ie_login(CaseNumber,format_call_date,Consignee_Code)
+        await ie_login(CaseNumber,format_call_date,Consignee_Code, Book, Set)
 
 
 
@@ -352,7 +357,7 @@ app.post('/launch', async (req, res) => {
 
 
 
-async function ie_login(CaseNumber,format_call_date,Consignee_Code) {  
+async function ie_login(CaseNumber,format_call_date,Consignee_Code, Book, Set) {  
     
     const call_serial_num = '2'
     const call_serial_num_txt = "SNO="+ call_serial_num
@@ -458,12 +463,55 @@ async function ie_login(CaseNumber,format_call_date,Consignee_Code) {
     await call_status_edit_form.waitForSelector(`#ddlCondignee`)
     await call_status_edit_form.select('select#ddlCondignee', Consignee_Code)
 
+    await page.waitForTimeout(3000)
     
+    // // ---------skipped for testing----------------
+
+    // await call_status_edit_form.type('#txtBKNO1',Book)
+    // await call_status_edit_form.type('#txtSetNo1',Set)
+
+
+    // const fileInput = await call_status_edit_form.$('#File4'); 
+    // await fileInput.uploadFile('C:\\Users\\Nitin Rajput\\Desktop\\IC PHOTO\\1.jpg');
+    // const fileInput1 = await call_status_edit_form.$('#File5'); 
+    // await fileInput1.uploadFile('C:\\Users\\Nitin Rajput\\Desktop\\IC PHOTO\\2.jpg');
+    // const fileInput2 = await call_status_edit_form.$('#File6'); 
+    // await fileInput2.uploadFile('C:\\Users\\Nitin Rajput\\Desktop\\IC PHOTO\\3.jpg');
+    // const fileInput3 = await call_status_edit_form.$('#File7'); 
+    // await fileInput3.uploadFile('C:\\Users\\Nitin Rajput\\Desktop\\IC PHOTO\\4.jpg');
+    // const fileInput4 = await call_status_edit_form.$('#File8'); 
+    // await fileInput4.uploadFile('C:\\Users\\Nitin Rajput\\Desktop\\IC PHOTO\\5.jpg');     
+
+    // await call_status_edit_form.click(`#btnSaveFiles`);
+
+    // // ---------skipped for testing----------------
+
+
+    await call_status_edit_form.waitForSelector(`#btnViewIC`);
+    await call_status_edit_form.click(`#btnViewIC`);
+
+    await page.waitForTimeout(2000)
+
+    let ic_report;
+    for (const page of allPages) {
+        const pageUrl = page.url();            
+        if(pageUrl.includes(CaseNumber)){
+            ic_report= page  
+            break;                
+        }             
+               
+    } 
+    await ic_report.screenshot({ path: 'screenshot.png' });
+
+    await page.waitForTimeout(3000)
+
+    await ic_report.waitForSelector(`#TxtItemRemarkeh`)
+    await ic_report.type(`#TxtItemRemarkeh`,txt_qty)
+
+    await ic_report.waitForTimeout(3000)
 
 
 
-
-    await page.waitForTimeout(5000)
     
 
 
@@ -579,6 +627,22 @@ function IC_Description(section, grade, Raillen, railclass) {
     return [description,list_desc_num,PL_No]; // Return the description at the end
 }
 
-
-
-
+function convertToText(number) {
+    if (isNaN(number)) {
+      return "Invalid input";
+    }
+  
+    const wholePart = Math.floor(number);
+    const fractionalPart = number - wholePart;
+  
+    const wholeText = numberToWords.toWords(wholePart);
+  
+    // Convert the fractional part to text with exactly four decimal places
+    const fractionalText = (Math.round(fractionalPart * 10000)).toString().padStart(4, '0');
+  
+    if (fractionalText === "0000") {
+      return `${wholeText} point zero zero zero zero`;
+    } else {
+      return `${wholeText} point ${fractionalText}`;
+    }
+}
