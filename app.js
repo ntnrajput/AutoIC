@@ -261,14 +261,54 @@ app.post('/launch', async (req, res) => {
         // // -------------------------------------------------------------------------
         
 
+        // -------------This code only testing Purpose-------------
+
         await call_page.click(`#btnSearch`);
         await call_page.waitForSelector('#grdCNO_ctl02_Hyperlink2');
         await call_page.click('#grdCNO_ctl02_Hyperlink2');
         await call_page.waitForSelector('#btnMod');
         await call_page.click(`#btnMod`);
-
+        const allPages11 = await browser.pages();
+        const call_mod = allPages11.find((page) => page.url() === "https://www.ritesinsp.com/rbs/Call_Register_Form.aspx?Action=M&Case_No=C19040066&DT_RECIEPT=26/09/2023&CALL_SNO=6");
+        await call_mod.waitForSelector('#btnCDetails')
+        await call_mod.click(`#btnCDetails`)
         
 
+        // --------------------This code onyl for Testing Purpose---------------
+
+        let call_details = null;
+
+        await page.waitForTimeout(2000);
+
+        for (const page of allPages) {
+            const pageUrl = page.url();            
+            if(pageUrl.includes(CaseNumber)){
+                call_details = page  
+                break;                
+            }                    
+        } 
+        
+
+        // Assuming the outer table has an id 'outerTableId' and the inner table has an id 'innerTableId'
+        const outerTableSelector = 'table#Table1';
+        const innerTableSelector = 'table#grdCDetails';
+
+        // Wait for the outer table to appear
+        await call_details.waitForSelector(outerTableSelector);
+
+        // Get the inner table within the outer table
+        await call_details.waitForSelector(innerTableSelector, { visible: true, timeout: 0 });
+
+        // Get the last row in the inner table
+        const lastRowSelector = `${innerTableSelector} tr:last-child`;
+
+        // Get the link in the first column of the last row of the inner table
+        const linkSelector = `${lastRowSelector} td:first-child a`;
+
+        // Click the link
+        await call_details.click(linkSelector);
+
+        page.waitForTimeout(4000)
         
 
 
