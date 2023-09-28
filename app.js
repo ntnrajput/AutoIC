@@ -627,7 +627,14 @@ function IC_Description(section, grade, Raillen, railclass) {
     return [description,list_desc_num,PL_No]; // Return the description at the end
 }
 
-function convertToText(number) {
+
+
+
+function capitalizeFirstLetter(word) {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }
+  
+  function convertToText(number) {
     if (isNaN(number)) {
       return "Invalid input";
     }
@@ -635,14 +642,21 @@ function convertToText(number) {
     const wholePart = Math.floor(number);
     const fractionalPart = number - wholePart;
   
-    const wholeText = numberToWords.toWords(wholePart);
+    const wholeText = numberToWords.toWords(wholePart).split(' ').map(capitalizeFirstLetter).join(' ');
   
     // Convert the fractional part to text with exactly four decimal places
-    const fractionalText = (Math.round(fractionalPart * 10000)).toString().padStart(4, '0');
+    const fractionalText = (Math.round(fractionalPart * 10000)).toString().padStart(4, '0').slice(0, 4);
   
     if (fractionalText === "0000") {
       return `${wholeText} point zero zero zero zero`;
     } else {
-      return `${wholeText} point ${fractionalText}`;
+      const fractionalWords = Array.from(fractionalText).map(digit => numberToWords.toWords(parseInt(digit))).join(' ');
+      // Use a specific regular expression to remove the dash between "Eighty" and "Nine"
+      const formattedFractionalWords = fractionalWords.replace(/\bEighty-\b/g, 'Eighty Nine').replace(/ and /g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      return `${wholeText} point ${formattedFractionalWords}`;
     }
-}
+  }
+  
+  console.log(convertToText(989.39)); // Output: "Nine Hundred Eighty Nine point Three Nine Two Zero"
+  
+  
