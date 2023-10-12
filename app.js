@@ -23,7 +23,7 @@ app.post('/launch', async (req, res) => {
     const {
         CaseNumber, PODate, PONumber, calldate, section,
         grade, Raillen, railclass, rake, PO_Qty,
-        Rate, Consignee_Code, BPO_Code, f_s, irfc, Cumm_Pass_Qty, Off_Qty, Book, Set
+        Rate, Consignee_Code, BPO_Code, f_s, irfc, Cumm_Pass_Qty, Off_Qty, Book, Set, step
     } = req.body;
     const Rem_Qty = PO_Qty -Cumm_Pass_Qty-Off_Qty;
     const format_call_date = calldate.split('-').reverse().join('-');
@@ -32,9 +32,7 @@ app.post('/launch', async (req, res) => {
     console.log(txt_qty)
 
     // data received from index.html
-    
 
-    
     try {
         const browser = await puppeteer.launch({
             headless: false,
@@ -217,6 +215,8 @@ app.post('/launch', async (req, res) => {
             await PO_Details.click(`#WebUserControl11_HyperLink1`)
 
             case '2':
+
+            console.log('welcome to step 2')
             await page.waitForTimeout(2000);  
             await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
 
@@ -343,10 +343,8 @@ app.post('/launch', async (req, res) => {
 
             await call_details.click(`#WebUserControl11_HyperLink2`)
 
-            await page.waitForTimeout(3000)
-            
             case '3':
-        
+            await page.waitForTimeout(3000)    
             await ie_login(CaseNumber,format_call_date,Consignee_Code, Book, Set, Off_Qty,Rem_Qty,txt_qty)
 
 
@@ -358,8 +356,6 @@ app.post('/launch', async (req, res) => {
     } catch (error) {
         res.status(500).send(`Error launching ${websiteURL}`);
     }
-
-
 
 });
 
@@ -532,10 +528,6 @@ async function ie_login(CaseNumber,format_call_date,Consignee_Code, Book, Set, O
     return;
 }
   
-
-
-
-
 //allied functions
 
 async function hoverAndClick(page, hoverText1, hoverText2, clickText) {

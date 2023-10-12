@@ -25,12 +25,12 @@
 
                 <div class="form-group col-md-3">
                     <label for="PODate">PO Date:</label>
-                    <input type="date" class="form-control" id="PODate" name="PODate" required>
+                    <input type="date" class="form-control" id="PODate" name="PODate" required disabled>
                 </div>
 
                 <div class="form-group col-md-3">
                     <label for="PONumber">PO Number:</label>
-                    <input type="text" class="form-control" id="PONumber" name="PONumber" required>
+                    <input type="text" class="form-control" id="PONumber" name="PONumber" required disabled>
                 </div>
                 <div class="form-group col-md-3">
                     <label for="calldate">Call Date:</label>
@@ -142,6 +142,19 @@
 
                 </div>
             </div>
+
+            <div class="form-row">               
+                <div class="form-group col-md-3">
+                    <label for="step">Step</label> <!-- Fixed the label here -->
+                    <select class="form-control" id="step" name="step" required>
+                        <option value="1">Purchase Order</option>
+                        <option value="2">Call Marking</option>                        
+                        <option value="3">IE Details</option>                        
+                    </select>                   
+                </div>                
+            </div>
+
+            
 
             
 
