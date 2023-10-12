@@ -123,18 +123,22 @@
                 
                 <div class="row">
                     <div class="col-md-3">
-                        <label for="Cumm_Pass_Qty">Cumm. Qty Passed</label>
-                        <input type="number" class="form-control" id="Cumm_Pass_Qty" name="Cumm_Pass_Qty" step="0.0001" required>
+                        <label for="Cumm_Pass_Qty_p">Cumm. Qty Previous IC</label>
+                        <input type="number" class="form-control" id="Cumm_Pass_Qty_p" name="Cumm_Pass_Qty_p" step="0.0001" required>
                     </div>
                     <div class="col-md-3">
+                        <label for="Off_Qty_p">Qty Previous IC</label>
+                        <input type="number" class="form-control" id="Off_Qty_p" name="Off_Qty_p" step="0.0001" required>
+                    </div>
+                    <div class="col-md-2">
                         <label for="Off_Qty">Offered Quantity:</label>
                         <input type="number" class="form-control" id="Off_Qty" name="Off_Qty" step="0.0001" required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="Book">Book Number:</label>
                         <input type="number" class="form-control" id="Book" name="Book" required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="Set">Set Number:</label>
                         <input type="number" class="form-control" id="Set" name="Set" required>
                     </div>
@@ -154,9 +158,6 @@
                 </div>                
             </div>
 
-            
-
-            
 
             <button type="submit" class="btn btn-primary">Make IC</button>
         </form>

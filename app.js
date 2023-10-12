@@ -23,13 +23,14 @@ app.post('/launch', async (req, res) => {
     const {
         CaseNumber, PODate, PONumber, calldate, section,
         grade, Raillen, railclass, rake, PO_Qty,
-        Rate, Consignee_Code, BPO_Code, f_s, irfc, Cumm_Pass_Qty, Off_Qty, Book, Set, step
+        Rate, Consignee_Code, BPO_Code, f_s, irfc, Cumm_Pass_Qty_p, Off_Qty, Book, Set, step, Off_Qty_p
     } = req.body;
-    const Rem_Qty = PO_Qty -Cumm_Pass_Qty-Off_Qty;
+    const Cumm_Pass_Qty = Cumm_Pass_Qty_p + Off_Qty_p;
+    const Rem_Qty = PO_Qty - Cumm_Pass_Qty - Off_Qty;
     const format_call_date = calldate.split('-').reverse().join('-');
     const txt_qty_half = await convertToText(Off_Qty,4)
     const txt_qty = "QUANTITY NOW PASSED & DISPATCHED - " + txt_qty_half + " MT ONLY."
-    console.log(txt_qty)
+    console.log(Cumm_Pass_Qty,Rem_Qty,format_call_date,txt_qty)
 
     // data received from index.html
 
