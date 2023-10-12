@@ -25,8 +25,8 @@ app.post('/launch', async (req, res) => {
         grade, Raillen, railclass, rake, PO_Qty,
         Rate, Consignee_Code, BPO_Code, f_s, irfc, Cumm_Pass_Qty_p, Off_Qty, Book, Set, step, Off_Qty_p
     } = req.body;
-    const Cumm_Pass_Qty = Cumm_Pass_Qty_p + Off_Qty_p;
-    const Rem_Qty = PO_Qty - Cumm_Pass_Qty - Off_Qty;
+    const Cumm_Pass_Qty = parseFloat(Cumm_Pass_Qty_p) + parseFloat(Off_Qty_p);
+    const Rem_Qty = parseFloat(PO_Qty) - Cumm_Pass_Qty - parseFloat(Off_Qty);
     const format_call_date = calldate.split('-').reverse().join('-');
     const txt_qty_half = await convertToText(Off_Qty,4)
     const txt_qty = "QUANTITY NOW PASSED & DISPATCHED - " + txt_qty_half + " MT ONLY."
@@ -650,6 +650,6 @@ function capitalizeFirstLetter(word) {
     }
   }
   
-  console.log(convertToText(989.39)); // Output: "Nine Hundred Eighty Nine point Three Nine Two Zero"
+ 
   
   
