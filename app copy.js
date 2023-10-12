@@ -33,15 +33,12 @@ app.post('/launch', async (req, res) => {
 
     // data received from index.html
     
-
-    
     try {
         const browser = await puppeteer.launch({
             headless: false,
             defaultViewport: false,
             executablePath:"c:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
         });
-        
         const [page] = await browser.pages();
         await page.goto(websiteURL);
         // await page.waitForTimeout(1000);
@@ -49,10 +46,11 @@ app.post('/launch', async (req, res) => {
 
         await page.type('#txtUname', 'CRTECH');
         await page.type('#txtPwd', 'BSPINSCR');
-        await page.keyboard.press('Enter');        
-        //-----------Login Done---------------        
-        await page.waitForNavigation({ waitUntil: 'networkidle2' });
+        await page.keyboard.press('Enter');
+
+        //-----------Login Done---------------
         
+        await page.waitForNavigation({ waitUntil: 'networkidle2' });
 
         const allPages = await browser.pages();    
         let Main_Page = null;
@@ -61,306 +59,298 @@ app.post('/launch', async (req, res) => {
             if(pageUrl === "https://www.ritesinsp.com/rbs/MainForm.aspx?Role=1"){
                 Main_Page = page                
             }
-        }  
-            
-        switch (step){
-            case '1':
+        }     
 
-            await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Purchase Order Form');
-        
-            await page.waitForTimeout(3000);
-            let PO_Page = null
-            for (const page of allPages) {
-                const pageUrl = page.url();
-                // console.log(pageUrl)
-                if(pageUrl === "https://www.ritesinsp.com/rbs/PurchesOrder1_Form.aspx"){
-                    PO_Page = page
-                }
+        await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Purchase Order Form');
+       
+        await page.waitForTimeout(3000);
+        let PO_Page = null
+        for (const page of allPages) {
+            const pageUrl = page.url();
+            // console.log(pageUrl)
+            if(pageUrl === "https://www.ritesinsp.com/rbs/PurchesOrder1_Form.aspx"){
+                PO_Page = page
             }
-
-            await PO_Page.type('#txtCsNo',CaseNumber);
-            await PO_Page.click('#btnSearchPO');
-            
-            await PO_Page.waitForSelector('a'); // Wait for at least one anchor element
-            
-            // Use a selector to locate the anchor tag link you want to click
-            
-            const linkSelector = `a[href*="PurchesOrder_Form"][href*="${CaseNumber}"]`;
-
-            // const linkSelector = 'a[href="PurchesOrder_Form.aspx?CASE_NO=${variableValue}"]'; // Replace with the href of the specific link you want to click
-            
-            await PO_Page.waitForSelector(linkSelector);
-            await PO_Page.click(linkSelector);       
-            
-            await page.waitForTimeout(2000);
-
-            //-----------Purchase Order Form Opened
-
-            let PO_Page_Case = null;
-            const PO_Page_Case_url = `https://www.ritesinsp.com/rbs/PurchesOrder_Form.aspx?CASE_NO=${CaseNumber}`;
-        
-            for (const page of allPages) {
-                const pageUrl = page.url();
-                // console.log(pageUrl)
-                if(pageUrl === PO_Page_Case_url){
-                    PO_Page_Case = page
-                }
-            }
-
-            const PO_Date_Box = await PO_Page_Case.$('#txtPOdate');
-            const PO_Date = await PO_Page_Case.evaluate(input => input.value, PO_Date_Box);
-            const tableId = 'grdCB'
-            const table = await PO_Page_Case.$(`#${tableId}`);
-            
-            const rowCount = await PO_Page_Case.evaluate(table => {
-                const rows = table.querySelectorAll('tr');
-                return rows.length;
-            }, table);
-
-            //-----------Going Through all Consingee already added, if cosignee present, opening PO Details
-
-            for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-                const columns = await PO_Page_Case.evaluate((table, rowIndex) => {
-                const row = table.querySelectorAll('tr')[rowIndex];
-                const columns = Array.from(row.querySelectorAll('td')).map(column => column.textContent.trim());
-                return columns;
-                }, table, rowIndex);
-                const regex = new RegExp(Consignee_Code);
-                if (regex.test(columns[1])) {                
-                    await PO_Page_Case.click('#btnPODetails'); 
-                    break;
-                }
-            }
-
-            await PO_Page_Case.waitForTimeout(3000);
-            
-            // console.log(PO_Details_url)
-            for (const page of allPages) {
-                const pageUrl = page.url();
-                
-                if(pageUrl.includes(CaseNumber)){
-                    PO_Details = page  
-                    break;                
-                }                    
-            }
-
-            await page.waitForTimeout(3000); // time for pressing okay on page
-
-            //-----------Getting Description from the function as per details Entered---------------------
-            const [description,list_desc_num,PL_No] = IC_Description(section, grade, Raillen, railclass);        
-
-            await PO_Details.select('select#lstItemDesc', list_desc_num);
-
-            //-----------Giving Time to press OK-------------
-            
-            await page.waitForTimeout(5000);
-            await PO_Details.type(`#txtItemDescpt`, description);
-            await PO_Details.type(`#txtPLNO`,PL_No);
-            await PO_Details.select('select#ddlConsigneeCD', Consignee_Code);
-            await PO_Details.type(`#txtQty`,PO_Qty);
-            await PO_Details.keyboard.press('Tab');
-            await PO_Details.type(`#txtRate`,Rate);
-            for (let i = 0; i < 6; i++) {
-                await PO_Details.keyboard.press('Tab');
-            }
-            await PO_Details.type (`#txtSaleTaxPre`,'18');
-            for (let i = 0; i < 6; i++) {
-                await PO_Details.keyboard.press('Tab');
-            }
-            await PO_Details.type (`#txtExtDelvDate`,'31-03-2024'); 
-
-            const outerTable = await PO_Details.$('table#Table1');
-            const innerTable = await outerTable.$('table#DgPO');
-
-        
-            const rows = await innerTable.$$('tr');
-            const ic_made = (rows.length);
-            
-            
-            
-            await PO_Details.click('#btnSave');
-            await page.waitForTimeout(5000);
-
-
-            //-----------Part Created-------------
-
-            {
-            // //Accessing last Part and deleting it.. till it goes real
-
-            // const last_part = `a[id*="DgPO_ctl"][id*="${ic_made + 1}"][id*="Hyperlink2"]`;   
-            
-            // await PO_Details.click(last_part);    
-            // let PO_Part_Page = null;
-            // await page.waitForTimeout(2000);
-
-            // for (const page of allPages) {
-            //     const pageUrl = page.url();            
-            //     if(pageUrl.includes(CaseNumber)){
-            //         PO_Part_Page = page  
-            //         break;                
-            //     }                    
-            // } 
-            // await page.waitForTimeout(2000);
-            // await PO_Part_Page.click(`#btnDelete`);
-
-            // //Accessing last Part and deleting it.. till it goes real
-
-            // await page.waitForTimeout(4000);
-
-            // await PO_Part_Page.click(`#WebUserControl11_HyperLink1`) // Change PO_Part_page to PO_details when deleting part is commented
-            }
-
-            //-----------Going Back to Main Page
-
-            //------2nd Part Begins-------------
-
-            await PO_Details.click(`#WebUserControl11_HyperLink1`)
-
-            case '2':
-            await page.waitForTimeout(2000);  
-            await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
-
-            const call_page_url = 'https://www.ritesinsp.com/rbs/Call_Register_Edit.aspx'
-            let call_page = null;
-            await page.waitForTimeout(2000);
-
-            for (const page of allPages) {
-                const pageUrl = page.url();            
-                if(pageUrl === call_page_url){
-                    call_page = page  
-                    break;                
-                }                    
-            } 
-
-            
-            await call_page.type(`#txtCaseNo`,CaseNumber)
-            await call_page.type(`#txtDtOfReciept`,format_call_date)
-
-            
-            await call_page.click(`#btnAdd`);
-
-            let new_call_page = null;
-
-            await page.waitForTimeout(2000);
-
-            for (const page of allPages) {
-                const pageUrl = page.url();            
-                if(pageUrl.includes(CaseNumber)){
-                    new_call_page = page  
-                    break;                
-                }                    
-            } 
-            
-            
-            await new_call_page.select('select#lstIE', '557');
-            await new_call_page.select('select#ddlDept', 'C');
-            if (f_s === 'f') {
-                await new_call_page.click('#rdbFinal');
-            } else if (f_s === 's') {
-                await new_call_page.click('#rdbStage');
-            }
-            await page.waitForTimeout(500);
-
-            const irfcSelect = await new_call_page.$('select#ddlIRFC');
-            if (irfcSelect) {
-            
-                if(irfc === 'funded'){
-                    await new_call_page.select('select#ddlIRFC', 'Y');
-                }else{
-                    await new_call_page.select('select#ddlIRFC', 'N');
-                }
-            }
-            await new_call_page.type('#txtMName','45338') ;  
-            await new_call_page.click('#btnFCList');
-            await page.waitForTimeout(1000)
-            await new_call_page.click (`#btnSave`); 
-            await page.waitForTimeout(3000)
-            await new_call_page.click (`#btnCDetails`);
-
-            // -------------------------------------------------------------------------
-            // -------------------------------------------------------------------------
-            
-
-            // // // -------------This code only testing Purpose-------------
-
-            // // await call_page.click(`#btnSearch`);
-            // // await call_page.waitForSelector('#grdCNO_ctl02_Hyperlink2');
-            // // await call_page.click('#grdCNO_ctl02_Hyperlink2');
-            // // await call_page.waitForSelector('#btnMod');
-            // // await call_page.click(`#btnMod`);
-            // // await page.waitForTimeout(1000)
-            // // const allPages11 = await browser.pages();
-            // // const call_mod = allPages11.find((page) => page.url() === "https://www.ritesinsp.com/rbs/Call_Register_Form.aspx?Action=M&Case_No=C19040066&DT_RECIEPT=27/09/2023&CALL_SNO=2");
-            // // await page.waitForTimeout(1000)
-            // // await call_mod.waitForSelector('#btnCDetails')
-            // // await call_mod.click(`#btnCDetails`)
-            
-
-            // // // --------------------This code onyl for Testing Purpose---------------
-
-            let call_details = null;
-
-            await page.waitForTimeout(2000);
-
-            for (const page of allPages) {
-                const pageUrl = page.url();            
-                if(pageUrl.includes(CaseNumber)){
-                    call_details = page  
-                    break;                
-                }                    
-            } 
-            
-
-            // Assuming the outer table has an id 'outerTableId' and the inner table has an id 'innerTableId'
-            const outerTableSelector = 'table#Table1';
-            const innerTableSelector = 'table#grdCDetails';
-
-            // Wait for the outer table to appear
-            await call_details.waitForSelector(outerTableSelector);
-
-            // Get the inner table within the outer table
-            await call_details.waitForSelector(innerTableSelector, { visible: true, timeout: 0 });
-
-            // Get the last row in the inner table
-            const lastRowSelector = `${innerTableSelector} tr:last-child`;
-
-            // Get the link in the first column of the last row of the inner table
-            const linkSelector1 = `${lastRowSelector} td:first-child a`;
-
-            // Click the link
-            await call_details.click(linkSelector1);
-
-
-            await call_details.waitForSelector(`#txtQuanInsp`);
-            await call_details.type(`#txtCQty`,Cumm_Pass_Qty);
-            await call_details.type(`#txtQPrePassed`,Cumm_Pass_Qty);
-            await call_details.type(`#txtQuanInsp`,Off_Qty);
-            await call_details.click(`#btnSave`);
-
-            page.waitForTimeout(3000)
-            
-
-
-            await call_details.click(`#WebUserControl11_HyperLink2`)
-
-            await page.waitForTimeout(3000)
-            
-            case '3':
-        
-            await ie_login(CaseNumber,format_call_date,Consignee_Code, Book, Set, Off_Qty,Rem_Qty,txt_qty)
-
-
-            await page.waitForTimeout(2000);
-            await browser.close();
-            res.send(`Launched ${CaseNumber} `);
         }
-    
+
+        await PO_Page.type('#txtCsNo',CaseNumber);
+        await PO_Page.click('#btnSearchPO');
+        
+        await PO_Page.waitForSelector('a'); // Wait for at least one anchor element
+        
+        // Use a selector to locate the anchor tag link you want to click
+        
+        const linkSelector = `a[href*="PurchesOrder_Form"][href*="${CaseNumber}"]`;
+
+        // const linkSelector = 'a[href="PurchesOrder_Form.aspx?CASE_NO=${variableValue}"]'; // Replace with the href of the specific link you want to click
+        
+        await PO_Page.waitForSelector(linkSelector);
+        await PO_Page.click(linkSelector);       
+        
+        await page.waitForTimeout(2000);
+
+        //-----------Purchase Order Form Opened
+
+        let PO_Page_Case = null;
+        const PO_Page_Case_url = `https://www.ritesinsp.com/rbs/PurchesOrder_Form.aspx?CASE_NO=${CaseNumber}`;
+       
+        for (const page of allPages) {
+            const pageUrl = page.url();
+            // console.log(pageUrl)
+            if(pageUrl === PO_Page_Case_url){
+                PO_Page_Case = page
+            }
+        }
+
+        const PO_Date_Box = await PO_Page_Case.$('#txtPOdate');
+        const PO_Date = await PO_Page_Case.evaluate(input => input.value, PO_Date_Box);
+        const tableId = 'grdCB'
+        const table = await PO_Page_Case.$(`#${tableId}`);
+        
+        const rowCount = await PO_Page_Case.evaluate(table => {
+            const rows = table.querySelectorAll('tr');
+            return rows.length;
+        }, table);
+
+        //-----------Going Through all Consingee already added, if cosignee present, opening PO Details
+
+        for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            const columns = await PO_Page_Case.evaluate((table, rowIndex) => {
+              const row = table.querySelectorAll('tr')[rowIndex];
+              const columns = Array.from(row.querySelectorAll('td')).map(column => column.textContent.trim());
+              return columns;
+            }, table, rowIndex);
+            const regex = new RegExp(Consignee_Code);
+            if (regex.test(columns[1])) {                
+                await PO_Page_Case.click('#btnPODetails'); 
+                break;
+            }
+        }
+
+        await PO_Page_Case.waitForTimeout(3000);
+        
+        // console.log(PO_Details_url)
+        for (const page of allPages) {
+            const pageUrl = page.url();
+            
+            if(pageUrl.includes(CaseNumber)){
+                PO_Details = page  
+                break;                
+            }                    
+        }
+
+        await page.waitForTimeout(3000); // time for pressing okay on page
+
+        //-----------Getting Description from the function as per details Entered---------------------
+        const [description,list_desc_num,PL_No] = IC_Description(section, grade, Raillen, railclass);        
+
+        await PO_Details.select('select#lstItemDesc', list_desc_num);
+
+        //-----------Giving Time to press OK-------------
+        
+        await page.waitForTimeout(5000);
+        await PO_Details.type(`#txtItemDescpt`, description);
+        await PO_Details.type(`#txtPLNO`,PL_No);
+        await PO_Details.select('select#ddlConsigneeCD', Consignee_Code);
+        await PO_Details.type(`#txtQty`,PO_Qty);
+        await PO_Details.keyboard.press('Tab');
+        await PO_Details.type(`#txtRate`,Rate);
+        for (let i = 0; i < 6; i++) {
+            await PO_Details.keyboard.press('Tab');
+        }
+        await PO_Details.type (`#txtSaleTaxPre`,'18');
+        for (let i = 0; i < 6; i++) {
+            await PO_Details.keyboard.press('Tab');
+        }
+        await PO_Details.type (`#txtExtDelvDate`,'31-03-2024'); 
+
+        const outerTable = await PO_Details.$('table#Table1');
+        const innerTable = await outerTable.$('table#DgPO');
+
+       
+        const rows = await innerTable.$$('tr');
+        const ic_made = (rows.length);
+        
+        
+        
+        await PO_Details.click('#btnSave');
+        await page.waitForTimeout(5000);
+
+
+        //-----------Part Created-------------
+
+        {
+        // //Accessing last Part and deleting it.. till it goes real
+
+        // const last_part = `a[id*="DgPO_ctl"][id*="${ic_made + 1}"][id*="Hyperlink2"]`;   
+        
+        // await PO_Details.click(last_part);    
+        // let PO_Part_Page = null;
+        // await page.waitForTimeout(2000);
+
+        // for (const page of allPages) {
+        //     const pageUrl = page.url();            
+        //     if(pageUrl.includes(CaseNumber)){
+        //         PO_Part_Page = page  
+        //         break;                
+        //     }                    
+        // } 
+        // await page.waitForTimeout(2000);
+        // await PO_Part_Page.click(`#btnDelete`);
+
+        // //Accessing last Part and deleting it.. till it goes real
+
+        // await page.waitForTimeout(4000);
+
+        // await PO_Part_Page.click(`#WebUserControl11_HyperLink1`) // Change PO_Part_page to PO_details when deleting part is commented
+        }
+
+        //-----------Going Back to Main Page
+
+        await PO_Details.click(`#WebUserControl11_HyperLink1`)
+
+        await page.waitForTimeout(2000);
+
+        
+
+        await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
+
+        const call_page_url = 'https://www.ritesinsp.com/rbs/Call_Register_Edit.aspx'
+        let call_page = null;
+        await page.waitForTimeout(2000);
+
+        for (const page of allPages) {
+            const pageUrl = page.url();            
+            if(pageUrl === call_page_url){
+                call_page = page  
+                break;                
+            }                    
+        } 
+
+        
+        await call_page.type(`#txtCaseNo`,CaseNumber)
+        await call_page.type(`#txtDtOfReciept`,format_call_date)
+
+        
+        await call_page.click(`#btnAdd`);
+
+        let new_call_page = null;
+
+        await page.waitForTimeout(2000);
+
+        for (const page of allPages) {
+            const pageUrl = page.url();            
+            if(pageUrl.includes(CaseNumber)){
+                new_call_page = page  
+                break;                
+            }                    
+        } 
+        
+        
+        await new_call_page.select('select#lstIE', '557');
+        await new_call_page.select('select#ddlDept', 'C');
+        if (f_s === 'f') {
+            await new_call_page.click('#rdbFinal');
+          } else if (f_s === 's') {
+            await new_call_page.click('#rdbStage');
+        }
+        await page.waitForTimeout(500);
+
+        const irfcSelect = await new_call_page.$('select#ddlIRFC');
+        if (irfcSelect) {
+        
+            if(irfc === 'funded'){
+                await new_call_page.select('select#ddlIRFC', 'Y');
+            }else{
+                await new_call_page.select('select#ddlIRFC', 'N');
+            }
+        }
+        await new_call_page.type('#txtMName','45338') ;  
+        await new_call_page.click('#btnFCList');
+        await page.waitForTimeout(1000)
+        await new_call_page.click (`#btnSave`); 
+        await page.waitForTimeout(3000)
+        await new_call_page.click (`#btnCDetails`);
+
+        // -------------------------------------------------------------------------
+        // -------------------------------------------------------------------------
+        
+
+        // // // -------------This code only testing Purpose-------------
+
+        // // await call_page.click(`#btnSearch`);
+        // // await call_page.waitForSelector('#grdCNO_ctl02_Hyperlink2');
+        // // await call_page.click('#grdCNO_ctl02_Hyperlink2');
+        // // await call_page.waitForSelector('#btnMod');
+        // // await call_page.click(`#btnMod`);
+        // // await page.waitForTimeout(1000)
+        // // const allPages11 = await browser.pages();
+        // // const call_mod = allPages11.find((page) => page.url() === "https://www.ritesinsp.com/rbs/Call_Register_Form.aspx?Action=M&Case_No=C19040066&DT_RECIEPT=27/09/2023&CALL_SNO=2");
+        // // await page.waitForTimeout(1000)
+        // // await call_mod.waitForSelector('#btnCDetails')
+        // // await call_mod.click(`#btnCDetails`)
+        
+
+        // // // --------------------This code onyl for Testing Purpose---------------
+
+        let call_details = null;
+
+        await page.waitForTimeout(2000);
+
+        for (const page of allPages) {
+            const pageUrl = page.url();            
+            if(pageUrl.includes(CaseNumber)){
+                call_details = page  
+                break;                
+            }                    
+        } 
+        
+
+        // Assuming the outer table has an id 'outerTableId' and the inner table has an id 'innerTableId'
+        const outerTableSelector = 'table#Table1';
+        const innerTableSelector = 'table#grdCDetails';
+
+        // Wait for the outer table to appear
+        await call_details.waitForSelector(outerTableSelector);
+
+        // Get the inner table within the outer table
+        await call_details.waitForSelector(innerTableSelector, { visible: true, timeout: 0 });
+
+        // Get the last row in the inner table
+        const lastRowSelector = `${innerTableSelector} tr:last-child`;
+
+        // Get the link in the first column of the last row of the inner table
+        const linkSelector1 = `${lastRowSelector} td:first-child a`;
+
+        // Click the link
+        await call_details.click(linkSelector1);
+
+
+        await call_details.waitForSelector(`#txtQuanInsp`);
+        await call_details.type(`#txtCQty`,Cumm_Pass_Qty);
+        await call_details.type(`#txtQPrePassed`,Cumm_Pass_Qty);
+        await call_details.type(`#txtQuanInsp`,Off_Qty);
+        await call_details.click(`#btnSave`);
+
+        page.waitForTimeout(3000)
+        
+
+
+        await call_details.click(`#WebUserControl11_HyperLink2`)
+
+        await page.waitForTimeout(3000)
+        
+
+      
+        await ie_login(CaseNumber,format_call_date,Consignee_Code, Book, Set, Off_Qty,Rem_Qty,txt_qty)
+
+
+        await page.waitForTimeout(2000);
+        await browser.close();
+        res.send(`Launched ${CaseNumber} `);
     } catch (error) {
         res.status(500).send(`Error launching ${websiteURL}`);
     }
-
-
-
 });
 
 
