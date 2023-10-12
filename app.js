@@ -213,6 +213,7 @@ app.post('/launch', async (req, res) => {
             //------2nd Part Begins-------------
 
             await PO_Details.click(`#WebUserControl11_HyperLink1`)
+            break;
 
             case '2':
 
@@ -342,8 +343,10 @@ app.post('/launch', async (req, res) => {
 
 
             await call_details.click(`#WebUserControl11_HyperLink2`)
+            break;
 
             case '3':
+            console.log('welcome to part 3')
             await page.waitForTimeout(3000)    
             await ie_login(CaseNumber,format_call_date,Consignee_Code, Book, Set, Off_Qty,Rem_Qty,txt_qty)
 
