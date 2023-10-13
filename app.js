@@ -354,11 +354,14 @@ app.post('/launch', async (req, res) => {
             await page.waitForTimeout(3000)    
             await ie_login(CaseNumber,format_call_date,Consignee_Code, Book, Set, Off_Qty,Rem_Qty,txt_qty)
 
-
-            await page.waitForTimeout(2000);
-            await browser.close();
-            res.send(`Launched ${CaseNumber} `);
+            break;            
         }
+        await page.waitForTimeout(2000);
+        await browser.close();
+        res.send(` Step ${step} Completed `);
+        await page.waitForTimeout(2000)
+        res.redirect('index.html')
+        
     
     } catch (error) {
         res.status(500).send(`Error launching ${websiteURL}`);
