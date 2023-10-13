@@ -2,6 +2,7 @@ const express = require('express');
 const puppeteer = require('puppeteer');
 const path = require('path');
 const numberToWords = require('number-to-words');
+const { Console } = require('console');
 
 const app = express();
 const port = 3000;
@@ -18,7 +19,10 @@ app.get('/directory.html', (req, res) => {
 });
 
 
+
+
 app.post('/launch', async (req, res) => {
+    
     const websiteURL = 'https://www.ritesinsp.com/rbs/Login_Form.aspx'
     const {
         CaseNumber, PODate, PONumber, calldate, section,
@@ -63,8 +67,8 @@ app.post('/launch', async (req, res) => {
         }  
             
         switch (step){
+            
             case '1':
-
             await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Purchase Order Form');
         
             await page.waitForTimeout(3000);
@@ -146,7 +150,7 @@ app.post('/launch', async (req, res) => {
             await page.waitForTimeout(3000); // time for pressing okay on page
 
             //-----------Getting Description from the function as per details Entered---------------------
-            const [description,list_desc_num,PL_No] = IC_Description(section, grade, Raillen, railclass);        
+            const [description,list_desc_num,PL_No] = await IC_Description(section, grade, Raillen, railclass,rake);        
 
             await PO_Details.select('select#lstItemDesc', list_desc_num);
 
@@ -217,7 +221,6 @@ app.post('/launch', async (req, res) => {
             break;
 
             case '2':
-
             console.log('welcome to step 2')
             await page.waitForTimeout(2000);  
             await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
@@ -552,7 +555,7 @@ app.listen(port, () => {
 
 
 
-function IC_Description(section, grade, Raillen, railclass) {
+function IC_Description(section, grade, Raillen, railclass, rake) {
     let description = null; // Use 'let' instead of 'const' to allow reassignment
     let list_desc_num = null; 
     let PL_No = null; 
@@ -562,7 +565,7 @@ function IC_Description(section, grade, Raillen, railclass) {
     }else{PL_No='2'}
 
     if (Raillen === "260m" && section === '60E1') {        
-        description = "(PRIORITY PROGRAMME- , RAKE NO. )   1)  60 E1 R-260 GRADE RAILS (260M) WITH 100% ULTRASONICALLY TESTED SATISFYING THE REQUIREMENTS OF IRS SPECIFICATION NO. IRS-T-12-2009 CL-A PRIME QUALITY RAILS WITH LATEST AMENDMENTS 2) ALL FLASH BUTT WELDED RAIL JOINTS AND THEIR USFD TESTING ARE SATISFYING THE REQUIREMENTS OF IRFBWM 2012 WITH LATEST AMENDMENTS";
+        description = "(PRIORITY PROGRAMME- , RAKE NO. " + rake + "  )   1)  60 E1 R-260 GRADE RAILS (260M) WITH 100% ULTRASONICALLY TESTED SATISFYING THE REQUIREMENTS OF IRS SPECIFICATION NO. IRS-T-12-2009 CL-A PRIME QUALITY RAILS WITH LATEST AMENDMENTS 2) ALL FLASH BUTT WELDED RAIL JOINTS AND THEIR USFD TESTING ARE SATISFYING THE REQUIREMENTS OF IRFBWM 2012 WITH LATEST AMENDMENTS";
         list_desc_num = '8'
         
     }else if(Raillen === "260m" && section === 'IRS52'){
@@ -617,17 +620,16 @@ function IC_Description(section, grade, Raillen, railclass) {
         description = "irs52 880 13m cl B";
         list_desc_num = '1'
     }
+
+    Console.log(description)
     return [description,list_desc_num,PL_No]; // Return the description at the end
 }
 
-
-
-
 function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.slice(1);
-  }
+}
   
-  function convertToText(number) {
+function convertToText(number) {
     if (isNaN(number)) {
       return "Invalid input";
     }
@@ -648,7 +650,7 @@ function capitalizeFirstLetter(word) {
       const formattedFractionalWords = fractionalWords.replace(/\bEighty-\b/g, 'Eighty Nine').replace(/ and /g, ' ').replace(/\b\w/g, l => l.toUpperCase());
       return `${wholeText} point ${formattedFractionalWords}`;
     }
-  }
+}
   
  
   
