@@ -556,6 +556,7 @@ app.listen(port, () => {
 
 
 function IC_Description(section, grade, Raillen, railclass, rake) {
+    
     let description = null; // Use 'let' instead of 'const' to allow reassignment
     let list_desc_num = null; 
     let PL_No = null; 
@@ -565,7 +566,7 @@ function IC_Description(section, grade, Raillen, railclass, rake) {
     }else{PL_No='2'}
 
     if (Raillen === "260m" && section === '60E1') {        
-        description = "(PRIORITY PROGRAMME- , RAKE NO. " + rake + "  )   1)  60 E1 R-260 GRADE RAILS (260M) WITH 100% ULTRASONICALLY TESTED SATISFYING THE REQUIREMENTS OF IRS SPECIFICATION NO. IRS-T-12-2009 CL-A PRIME QUALITY RAILS WITH LATEST AMENDMENTS 2) ALL FLASH BUTT WELDED RAIL JOINTS AND THEIR USFD TESTING ARE SATISFYING THE REQUIREMENTS OF IRFBWM 2012 WITH LATEST AMENDMENTS";
+        description = "(PRIORITY PROGRAMME- , RAKE NO. " + rake + "   )   1)  60 E1 R-260 GRADE RAILS (260M) WITH 100% ULTRASONICALLY TESTED SATISFYING THE REQUIREMENTS OF IRS SPECIFICATION NO. IRS-T-12-2009 CL-A PRIME QUALITY RAILS WITH LATEST AMENDMENTS 2) ALL FLASH BUTT WELDED RAIL JOINTS AND THEIR USFD TESTING ARE SATISFYING THE REQUIREMENTS OF IRFBWM 2012 WITH LATEST AMENDMENTS";
         list_desc_num = '8'
         
     }else if(Raillen === "260m" && section === 'IRS52'){
@@ -621,7 +622,7 @@ function IC_Description(section, grade, Raillen, railclass, rake) {
         list_desc_num = '1'
     }
 
-    Console.log(description)
+    console.log(description)
     return [description,list_desc_num,PL_No]; // Return the description at the end
 }
 
