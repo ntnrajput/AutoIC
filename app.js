@@ -334,11 +334,14 @@ app.post('/launch', async (req, res) => {
 
             // Click the link
             await call_details.click(linkSelector1);
+            
 
-
+            
             await call_details.waitForSelector(`#txtQuanInsp`);
-            await call_details.type(`#txtCQty`,Cumm_Pass_Qty);
-            await call_details.type(`#txtQPrePassed`,Cumm_Pass_Qty);
+            
+            await call_details.type(`#txtCQty`,Cumm_Pass_Qty.toString());
+            
+            await call_details.type(`#txtQPrePassed`,Cumm_Pass_Qty.toString());
             await call_details.type(`#txtQuanInsp`,Off_Qty);
             await call_details.click(`#btnSave`);
 
