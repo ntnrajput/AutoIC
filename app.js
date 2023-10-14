@@ -358,10 +358,7 @@ app.post('/launch', async (req, res) => {
         }
         await page.waitForTimeout(2000);
         await browser.close();
-        res.send(` Step ${step} Completed `);
-        await page.waitForTimeout(2000)
-        res.redirect('index.html')
-        
+        res.send(` Step ${step} Completed `);        
     
     } catch (error) {
         res.status(500).send(`Error launching ${websiteURL}`);
