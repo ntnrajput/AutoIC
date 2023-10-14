@@ -361,7 +361,7 @@ app.post('/launch', async (req, res) => {
         res.send(` Step ${step} Completed `);        
     
     } catch (error) {
-        res.status(500).send(`Error launching ${websiteURL}`);
+        res.status(500).send(`Error completing step ${step}`);
     }
 
 });
@@ -566,7 +566,7 @@ function IC_Description(section, grade, Raillen, railclass, rake) {
     }else{PL_No='2'}
 
     if (Raillen === "260m" && section === '60E1') {        
-        description = "(PRIORITY PROGRAMME- , RAKE NO. " + rake + "   )   1)  60 E1 R-260 GRADE RAILS (260M) WITH 100% ULTRASONICALLY TESTED SATISFYING THE REQUIREMENTS OF IRS SPECIFICATION NO. IRS-T-12-2009 CL-A PRIME QUALITY RAILS WITH LATEST AMENDMENTS 2) ALL FLASH BUTT WELDED RAIL JOINTS AND THEIR USFD TESTING ARE SATISFYING THE REQUIREMENTS OF IRFBWM 2012 WITH LATEST AMENDMENTS";
+        description = "(PRIORITY PROGRAMME -01 , RAKE NO. " + rake + "   )   1)  60 E1 R-260 GRADE RAILS (260M) WITH 100% ULTRASONICALLY TESTED SATISFYING THE REQUIREMENTS OF IRS SPECIFICATION NO. IRS-T-12-2009 CL-A PRIME QUALITY RAILS WITH LATEST AMENDMENTS 2) ALL FLASH BUTT WELDED RAIL JOINTS AND THEIR USFD TESTING ARE SATISFYING THE REQUIREMENTS OF IRFBWM 2012 WITH LATEST AMENDMENTS";
         list_desc_num = '8'
         
     }else if(Raillen === "260m" && section === 'IRS52'){
