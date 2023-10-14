@@ -222,12 +222,12 @@ app.post('/launch', async (req, res) => {
 
             case '2':
             console.log('welcome to step 2')
-            await page.waitForTimeout(2000);  
+            await page.waitForTimeout(3000);  
             await hoverAndClick(Main_Page, 'TRANSACTIONS', 'Inspection & Billing', 'Call Registration/Cancellation');
 
             const call_page_url = 'https://www.ritesinsp.com/rbs/Call_Register_Edit.aspx'
             let call_page = null;
-            await page.waitForTimeout(2000);
+            await page.waitForTimeout(3000);
 
             for (const page of allPages) {
                 const pageUrl = page.url();            
@@ -246,7 +246,7 @@ app.post('/launch', async (req, res) => {
 
             let new_call_page = null;
 
-            await page.waitForTimeout(2000);
+            await page.waitForTimeout(3000);
 
             for (const page of allPages) {
                 const pageUrl = page.url();            
@@ -264,7 +264,7 @@ app.post('/launch', async (req, res) => {
             } else if (f_s === 's') {
                 await new_call_page.click('#rdbStage');
             }
-            await page.waitForTimeout(500);
+            await page.waitForTimeout(1000);
 
             const irfcSelect = await new_call_page.$('select#ddlIRFC');
             if (irfcSelect) {
@@ -305,7 +305,7 @@ app.post('/launch', async (req, res) => {
 
             let call_details = null;
 
-            await page.waitForTimeout(2000);
+            await page.waitForTimeout(3000);
 
             for (const page of allPages) {
                 const pageUrl = page.url();            
