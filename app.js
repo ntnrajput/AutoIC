@@ -573,19 +573,19 @@ function IC_Description(section, grade, Raillen, railclass, rake) {
         list_desc_num = '8'
         
     }else if(Raillen === "260m" && section === 'IRS52'){
-        description = " 52 kg rake";
+        description = "(PRIORITY PROGRAMME -02 , RAKE NO. " + rake + "   )   1)  IRS-52  R-260 GRADE RAILS (260M) WITH 100% ULTRASONICALLY TESTED SATISFYING THE REQUIREMENTS OF IRS SPECIFICATION NO. IRS-T-12-2009 CL-A PRIME QUALITY RAILS WITH LATEST AMENDMENTS 2) ALL FLASH BUTT WELDED RAIL JOINTS AND THEIR USFD TESTING ARE SATISFYING THE REQUIREMENTS OF IRFBWM 2012 WITH LATEST AMENDMENTS";
         list_desc_num = '7'
     }else if(section === "60E1" && grade === "R260" && Raillen == "26m" && railclass =="A"){
-        description = " 60e1 r260 26m cl A";
+        description = " 60 E1 R-260 GRADE RAILS (26M) WITH 100% ULTRASONICALLY TESTED SATISFYING THE REQUIREMENTS OF IRS SPECIFICATION NO. IRS-T-12-2009 CL-A PRIME QUALITY RAILS WITH LATEST AMENDMENTS";
         list_desc_num = '4'
     } else if(section === "60E1" && grade === "R260" && Raillen == "26m" && railclass =="B"){
-        description = " 60e1 r260 26m cl B";
+        description = " 60 E1 R-260 GRADE RAILS (26M) WITH 100% ULTRASONICALLY TESTED SATISFYING THE REQUIREMENTS OF IRS SPECIFICATION NO. IRS-T-12-2009 CL-B PRIME QUALITY RAILS WITH LATEST AMENDMENTS";
         list_desc_num = '4'
     }else if(section === "60E1" && grade === "R260" && Raillen == "13m" && railclass =="A"){
-        description = "60e1 r260 13m cl A";
+        description = "60 E1 R-260 GRADE RAILS (13M) WITH 100% ULTRASONICALLY TESTED SATISFYING THE REQUIREMENTS OF IRS SPECIFICATION NO. IRS-T-12-2009 CL-A PRIME QUALITY RAILS WITH LATEST AMENDMENTS";
         list_desc_num = '2'
     }else if(section === "60E1" && grade === "R260" && Raillen == "13m" && railclass =="B"){
-        description = "60e1 r260 13m cl B";
+        description = "60 E1 R-260 GRADE RAILS (13M) WITH 100% ULTRASONICALLY TESTED SATISFYING THE REQUIREMENTS OF IRS SPECIFICATION NO. IRS-T-12-2009 CL-B PRIME QUALITY RAILS WITH LATEST AMENDMENTS";
         list_desc_num = '2'
     }else if(section === "60E1" && grade === "880" && Raillen == "26m" && railclass =="A"){
         description = "60e1 880 26m cl A";
@@ -612,10 +612,10 @@ function IC_Description(section, grade, Raillen, railclass, rake) {
         description = " irs52 r260 13m cl B";
         list_desc_num = '1'
     }else if(section === "IRS52" && grade === "880" && Raillen == "26m" && railclass =="A"){
-        description = " irs52 880 26m cl A";
+        description = " 52KG (13M) GR 880 RAILS TO IRS SPECIFICATION NO. IRS T-12-2009 CL A PRIME QUALITY RAILS 100% ULTRASONICALLY TESTED & FOUND SATISFACTORY";
         list_desc_num = '3'
     } else if(section === "IRS52" && grade === "880" && Raillen == "26m" && railclass =="B"){
-        description = "irs52 880 26m cl B";
+        description = "52KG (13M) GR 880 RAILS TO IRS SPECIFICATION NO. IRS T-12-2009 CL B PRIME QUALITY RAILS 100% ULTRASONICALLY TESTED & FOUND SATISFACTORY";
         list_desc_num = '3'
     }else if(section === "6IRS52" && grade === "880" && Raillen == "13m" && railclass =="A"){
         description = " 52KG (13M) GR 880 RAILS TO IRS SPECIFICATION NO. IRS T-12-2009 CL B PRIME QUALITY RAILS 100% ULTRASONICALLY TESTED & FOUND SATISFACTORY";
