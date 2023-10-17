@@ -162,6 +162,7 @@ app.post('/launch', async (req, res) => {
             await PO_Details.select('select#ddlConsigneeCD', Consignee_Code);
             await PO_Details.type(`#txtQty`,PO_Qty);
             await PO_Details.keyboard.press('Tab');
+            await PO_Details.$eval('#txtRate', input => (input.value = ''));
             await PO_Details.type(`#txtRate`,Rate);
             for (let i = 0; i < 6; i++) {
                 await PO_Details.keyboard.press('Tab');
