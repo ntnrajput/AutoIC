@@ -157,6 +157,7 @@ app.post('/launch', async (req, res) => {
             //-----------Giving Time to press OK-------------
             
             await page.waitForTimeout(5000);
+            await PO_Details.$eval('#txtItemDescpt', input => (input.value = ''));
             await PO_Details.type(`#txtItemDescpt`, description);
             await PO_Details.type(`#txtPLNO`,PL_No);
             await PO_Details.select('select#ddlConsigneeCD', Consignee_Code);
